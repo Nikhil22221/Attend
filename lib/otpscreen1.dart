@@ -10,9 +10,9 @@ class otp1 extends StatefulWidget {
 }
 
 class _otp1State extends State<otp1> {
+  TextEditingController countrycode = TextEditingController();
   @override
   Widget build(BuildContext context) {
-    TextEditingController countrycode = TextEditingController();
     var phone = '';
 
     @override

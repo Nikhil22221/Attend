@@ -1,5 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:ui0/attend.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:ui0/navbar1.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class login extends StatefulWidget {
   const login({super.key});
@@ -10,6 +13,8 @@ class login extends StatefulWidget {
 
 class _loginState extends State<login> {
   var nameController = TextEditingController();
+
+  late SharedPreferences sharedPreferences;
 
   @override
   Widget build(BuildContext context) {
@@ -81,13 +86,62 @@ class _loginState extends State<login> {
                                 MaterialStateProperty.all(Colors.blue[400]),
                             minimumSize:
                                 MaterialStateProperty.all(Size(80, 60))),
-                        onPressed: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => attend(
-                                      employee:
-                                          nameController.text.toString())));
+                        onPressed: () async {
+                          String id = nameController.text.trim();
+
+                          if (id.isEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                              content: Text(
+                                'Please Enter Valid Employee ID',
+                                style: TextStyle(
+                                    fontFamily: 'OpenSans', fontSize: 24),
+                              ),
+                              backgroundColor: Colors.blue[600],
+                            ));
+                          } else {
+                            QuerySnapshot snap = await FirebaseFirestore
+                                .instance
+                                .collection("Employees")
+                                .where('id', isEqualTo: id)
+                                .get();
+
+                            //print(snap.docs[0]['id']);
+
+                            try {
+                              if (id == snap.docs[0]['id']) {
+                                sharedPreferences =
+                                    await SharedPreferences.getInstance();
+
+                                sharedPreferences.setString('emplyid', id).then(
+                                    (value) => Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) => nav1(
+                                                employee: nameController.text
+                                                    .toString()))));
+                              } else {
+                                ScaffoldMessenger.of(context)
+                                    .showSnackBar(SnackBar(
+                                  content: Text(
+                                    'Inavlid Employee ID Detected',
+                                    style: TextStyle(
+                                        fontFamily: 'OpenSans', fontSize: 24),
+                                  ),
+                                  backgroundColor: Colors.blue[600],
+                                ));
+                              }
+                            } catch (e) {
+                              ScaffoldMessenger.of(context)
+                                  .showSnackBar(SnackBar(
+                                content: Text(
+                                  'Inavlid Employee ID Detected',
+                                  style: TextStyle(
+                                      fontFamily: 'OpenSans', fontSize: 24),
+                                ),
+                                backgroundColor: Colors.blue[600],
+                              ));
+                            }
+                          }
                         },
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.center,

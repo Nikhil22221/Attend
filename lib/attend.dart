@@ -332,7 +332,7 @@ class _attendState extends State<attend> {
                     ),
                   ),
                 ),
-              )
+              ),
             ],
           )),
       bottomNavigationBar: nav(),
