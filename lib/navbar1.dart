@@ -4,8 +4,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:slide_to_act/slide_to_act.dart';
+import 'package:ui0/history.dart';
 import 'package:ui0/main.dart';
+import 'package:ui0/networkcall.dart';
 
 class nav1 extends StatefulWidget {
   var employee;
@@ -20,14 +21,25 @@ class _nav1State extends State<nav1> {
 
   String CheckIn = '';
   String CheckOut = '';
+  String Content = 'CheckIn Your Attendance';
 
   bool isSlideActionCompleted = false;
+
+  String getButtonText() {
+    if (CheckIn == '--/--') {
+      return 'Check In';
+    } else {
+      return 'Check Out';
+    }
+  }
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     getRecord();
+    String buttonText = getButtonText();
+    call();
   }
 
   void getRecord() async {
@@ -115,7 +127,7 @@ class _nav1State extends State<nav1> {
                     child: Column(
                       children: [
                         Text(
-                          'Attendance this Month : Present/Total',
+                          'Attendance this Month : Present/ 30',
                           style: TextStyle(
                               fontSize: 17,
                               fontWeight: FontWeight.w500,
@@ -229,76 +241,84 @@ class _nav1State extends State<nav1> {
               CheckOut == '--/--'
                   ? Padding(
                       padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
-                      child: Builder(
-                        builder: (context) {
-                          final GlobalKey<SlideActionState> key = GlobalKey();
+                      child: Container(
+                        width: 70,
+                        height: 70,
+                        margin: EdgeInsets.fromLTRB(20, 0, 20, 0),
+                        child: ElevatedButton.icon(
+                            style: ButtonStyle(
+                              backgroundColor:
+                                  MaterialStateProperty.all(Colors.blue[600]),
+                            ),
+                            onPressed: () async {
+                              {
+                                await Future.delayed(Duration(seconds: 1));
 
-                          return SlideAction(
-                            text: '     Slide To Mark Attendance',
-                            textStyle:
-                                TextStyle(fontSize: 20, color: Colors.white),
-                            outerColor: Colors.blue[600],
-                            key: key,
-                            onSubmit: () async {
-                              Timer(Duration(seconds: 1), () {
-                                key.currentState!.reset();
-                              });
+                                QuerySnapshot snap = await FirebaseFirestore
+                                    .instance
+                                    .collection('Employees')
+                                    .where('id', isEqualTo: User.username)
+                                    .get();
 
-                              await Future.delayed(Duration(seconds: 1));
-
-                              QuerySnapshot snap = await FirebaseFirestore
-                                  .instance
-                                  .collection('Employees')
-                                  .where('id', isEqualTo: User.username)
-                                  .get();
-
-                              DocumentSnapshot snap2 = await FirebaseFirestore
-                                  .instance
-                                  .collection('Employees')
-                                  .doc(snap.docs[0].id)
-                                  .collection('Record')
-                                  .doc(DateFormat('dd MMMM yyyy')
-                                      .format(DateTime.now()))
-                                  .get();
-
-                              try {
-                                String checkIn = snap2['Check In'];
-
-                                setState(() {
-                                  CheckOut = DateFormat('hh:mm')
-                                      .format(DateTime.now());
-                                });
-
-                                await FirebaseFirestore.instance
+                                DocumentSnapshot snap2 = await FirebaseFirestore
+                                    .instance
                                     .collection('Employees')
                                     .doc(snap.docs[0].id)
                                     .collection('Record')
                                     .doc(DateFormat('dd MMMM yyyy')
                                         .format(DateTime.now()))
-                                    .update({
-                                  'Check In': checkIn,
-                                  'Check Out':
-                                      DateFormat('hh:mm').format(DateTime.now())
-                                });
-                              } catch (e) {
-                                setState(() {
-                                  CheckIn = DateFormat('hh:mm')
-                                      .format(DateTime.now());
-                                });
-                                await FirebaseFirestore.instance
-                                    .collection('Employees')
-                                    .doc(snap.docs[0].id)
-                                    .collection('Record')
-                                    .doc(DateFormat('dd MMMM yyyy')
-                                        .format(DateTime.now()))
-                                    .set({
-                                  'Check In':
-                                      DateFormat('hh:mm').format(DateTime.now())
-                                });
+                                    .get();
+
+                                try {
+                                  String checkIn = snap2['Check In'];
+
+                                  setState(() {
+                                    CheckOut = DateFormat('hh:mm')
+                                        .format(DateTime.now());
+                                  });
+
+                                  await FirebaseFirestore.instance
+                                      .collection('Employees')
+                                      .doc(snap.docs[0].id)
+                                      .collection('Record')
+                                      .doc(DateFormat('dd MMMM yyyy')
+                                          .format(DateTime.now()))
+                                      .update({
+                                    'Check In': checkIn,
+                                    'Check Out': DateFormat('hh:mm')
+                                        .format(DateTime.now())
+                                  });
+                                } catch (e) {
+                                  setState(() {
+                                    CheckIn = DateFormat('hh:mm')
+                                        .format(DateTime.now());
+                                  });
+                                  await FirebaseFirestore.instance
+                                      .collection('Employees')
+                                      .doc(snap.docs[0].id)
+                                      .collection('Record')
+                                      .doc(DateFormat('dd MMMM yyyy')
+                                          .format(DateTime.now()))
+                                      .set({
+                                    'Check In': DateFormat('hh:mm')
+                                        .format(DateTime.now())
+                                  });
+                                }
                               }
                             },
-                          );
-                        },
+                            icon: Icon(
+                              Icons.mark_email_read_sharp,
+                              color: Colors.white,
+                              size: 28,
+                            ),
+                            label: Text(
+                              getButtonText(),
+                              style: TextStyle(
+                                fontSize: 20,
+                                color: Colors.white,
+                                fontFamily: 'Nexa',
+                              ),
+                            )),
                       ))
                   : Container(
                       margin: EdgeInsets.fromLTRB(20, 10, 10, 0),
@@ -313,19 +333,31 @@ class _nav1State extends State<nav1> {
               SizedBox(
                 height: 10,
               ),
-              ElevatedButton(
-                style: ButtonStyle(
-                    backgroundColor:
-                        MaterialStateProperty.all(Colors.blue[600])),
-                onPressed: () async {
-                  //   sharedPreferences = await SharedPreferences.getInstance();
-                  // setState(() {
-                  //     sharedPreferences.remove('emplyid');
-                  // });
-                },
-                child: Text(
-                  'Log Out',
-                  style: TextStyle(color: Colors.black),
+              Container(
+                margin: EdgeInsets.fromLTRB(25, 10, 10, 0),
+                width: 40,
+                height: 60,
+                child: ElevatedButton.icon(
+                  icon: Icon(
+                    Icons.logout,
+                    size: 27,
+                    color: Colors.white,
+                  ),
+                  label: Text(
+                    'Log Out',
+                    style: TextStyle(
+                        color: Colors.white, fontFamily: 'Libre', fontSize: 26),
+                  ),
+                  style: ButtonStyle(
+                      backgroundColor:
+                          MaterialStateProperty.all(Colors.blue[600])),
+                  onPressed: () async {
+                    sharedPreferences = await SharedPreferences.getInstance();
+                    setState(() {
+                      sharedPreferences.remove('emplyid');
+                    });
+                    Navigator.pushReplacementNamed(context, 'login');
+                  },
                 ),
               )
             ]),
@@ -542,10 +574,7 @@ class _nav1State extends State<nav1> {
             ),
           ),
           Center(
-            child: Icon(
-              Icons.analytics,
-              size: 80,
-            ),
+            child: History(),
           ),
         ],
       ),

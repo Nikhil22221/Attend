@@ -53,6 +53,7 @@ class _MyAppState extends State<MyApp> {
 
 class User {
   static String username = "";
+  static String eid = "";
 }
 
 class Authcheck extends StatefulWidget {

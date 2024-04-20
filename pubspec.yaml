@@ -41,9 +41,10 @@ dependencies:
   firebase_core: ^2.28.0
   firebase_auth: ^4.19.0
   flutter_riverpod: ^2.5.1
-  intl: ^0.19.0
+  intl: ^0.18.0
   cloud_firestore: ^4.17.0
   shared_preferences: ^2.2.3
+  month_year_picker: ^0.3.0+1
 
 dev_dependencies:
   flutter_test:
@@ -62,6 +63,7 @@ dev_dependencies:
   flutter_slidable: ^0.6.0
   font_awesome_flutter: ^10.7.0
   local_auth: ^2.2.0
+  
   
   
 

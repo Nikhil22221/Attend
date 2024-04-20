@@ -1,8 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:ui0/main.dart';
 import 'package:ui0/navbar1.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class login extends StatefulWidget {
   const login({super.key});
@@ -12,9 +12,31 @@ class login extends StatefulWidget {
 }
 
 class _loginState extends State<login> {
+  // @override
+  // void initState() {
+  //   // TODO: implement initState
+  //   super.initState();
+
+
+  //   getID();
+  // }
+
+  // void getID() async {
+  //   QuerySnapshot snap = await FirebaseFirestore.instance
+  //       .collection("Employees")
+  //       .where('id', isEqualTo: User.username)
+  //       .get();
+
+  //   setState(() {
+  //     User.eid = snap.docs[0].id;
+  //   });
+  // }
+
   var nameController = TextEditingController();
 
   late SharedPreferences sharedPreferences;
+
+  String id = '';
 
   @override
   Widget build(BuildContext context) {
